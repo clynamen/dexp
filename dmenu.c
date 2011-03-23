@@ -38,8 +38,6 @@ static void paste(void);
 static void readstdin(void);
 static void run(void);
 static void setup(void);
-// start scanCurDir,scanParDir,scanChiDir
-static void scanDir(void);
 //scan parent directory and save contenent in a string
 static void scanParDir(void);
 //scan current directory and save contenet in a Item struct
@@ -128,9 +126,9 @@ main(int argc, char *argv[]) {
 	if (fm) {
 	  if (!getcwd(curDir,4000))
             puts("unable to get current working directory");
-	  if (!(dir=opendir(curDir)))
-	    puts("unable to open diretory");
 	  scanCurDir(); //This is necessary for first start, otherwise other function will miss items
+	  scanChiDir();
+	  scanParDir();
 	}
 	else
 	  readstdin();
@@ -185,11 +183,10 @@ drawmenu(void) {
 
     // File Manager menu drawing, TODO: split this in a new function
     if (fm) {
-	scanDir();
         //now write contenent of parent directory in the top bar
         drawtextn(dc, ParDirFiles,strlen(ParDirFiles), normcol, 0);
         //same for child dir in the bottom bar
-        drawtextn(dc, ParDirFiles,strlen(ChiDirFiles), normcol, yBot);
+        drawtextn(dc, ChiDirFiles,strlen(ChiDirFiles), normcol, yBot);
     }
 
 	if(prompt) {
@@ -369,6 +366,12 @@ keypress(XKeyEvent *ev) {
 		}
 		else if(lines > 0)
 			return;
+				if(sel && sel->left && (sel = sel->left)->right == curr) {
+			curr = prev;
+			calcoffsets();
+		}
+		scanChiDir();
+		break;
 	case XK_Up:
 		if(sel && sel->left && (sel = sel->left)->right == curr) {
 			curr = prev;
@@ -403,10 +406,13 @@ keypress(XKeyEvent *ev) {
 			curr = next;
 			calcoffsets();
 		}
+		scanChiDir();
 		break;
 	case XK_Down:
 		if(!strcpy(curDir,sel->text))
 		 printf("unable to copy %s to %s /n", sel->text, curDir); 
+		scanCurDir();
+		scanParDir();
 		if(sel && sel->right && (sel = sel->right) == next) {
 			curr = next;
 			calcoffsets();
@@ -590,24 +596,12 @@ setup(void) {
 	
 }
 
-void
-scanDir(void)
-{
-  ParDirFiles[0] = 0; //clean string
-  ChiDirFiles[0] = 0; //clean string
-  scanCurDir();
-  scanChiDir();
-  scanParDir();
-//   puts(curDir);
-  if (!(dir=opendir(curDir)))
-    puts("unable to open directory");
-}
-
 
 void 
 scanParDir(void) {
   struct dirent *info; 
-  if (!(dir=opendir("../../")))
+  ParDirFiles[0] = 0;
+  if (!(dir=opendir("../")))
     puts("unable to open parent diretory");
   while ((info=readdir(dir))) {
     strcat(ParDirFiles,info->d_name);
@@ -634,17 +628,21 @@ scanCurDir(void) {
 		inputw = MAX(inputw, textw(dc, item->text));
 	  }
 	}
+	chdir(curDir);
 
 }
 
 void 
 scanChiDir(void) {
   struct dirent *info; 
-//   if (!(dir=opendir(curDir)))
-// 	  puts("unable to open diretory");
+  puts("hello");
+  ChiDirFiles[0] = 0; //clean stringh
   if (sel) {
+    printf("scanChi dir %s \t %s\n", curDir, sel->text);
     if ((dir=opendir(sel->text))) {
       while ((info=readdir(dir))) {
+	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
+	  continue;
 	strcat(ChiDirFiles,info->d_name);
 	strcat(ChiDirFiles,"   "); 
       }
