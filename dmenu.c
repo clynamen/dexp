@@ -413,10 +413,8 @@ keypress(XKeyEvent *ev) {
 		 printf("unable to copy %s to %s /n", sel->text, curDir); 
 		scanCurDir();
 		scanParDir();
-		if(sel && sel->right && (sel = sel->right) == next) {
-			curr = next;
-			calcoffsets();
-		}
+		match();
+		scanChiDir();
 		break;
 	case XK_Tab:
 		if(!sel)
@@ -613,7 +611,6 @@ void
 scanCurDir(void) {
 	Item *item, **end;
 	struct dirent *info;
-	puts(curDir);
 	if (!(dir=opendir(curDir)))
 	  puts("unable to open current directory");
 	else {
@@ -635,11 +632,20 @@ scanCurDir(void) {
 void 
 scanChiDir(void) {
   struct dirent *info; 
-  puts("hello");
   ChiDirFiles[0] = 0; //clean stringh
   if (sel) {
-    printf("scanChi dir %s \t %s\n", curDir, sel->text);
     if ((dir=opendir(sel->text))) {
+      while ((info=readdir(dir))) {
+	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
+	  continue;
+	strcat(ChiDirFiles,info->d_name);
+	strcat(ChiDirFiles,"   "); 
+      }
+    }
+  }
+  
+  else if (items) {
+    if ((dir=opendir(items->text))) {
       while ((info=readdir(dir))) {
 	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
 	  continue;
