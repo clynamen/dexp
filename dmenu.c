@@ -48,9 +48,9 @@ static void usage(void);
 
 static char text[BUFSIZ];
 //A string that collects the files of the parent directory TODO: malloc the string depending screen size
-static char ParDirFiles[1000];
-static char ChiDirFiles[1000];
-//Current working Directory, the contenent is in te middle bar
+static char ParDirFiles[300];
+static char ChiDirFiles[300];
+//Current working Directory, the contenent is in the middle bar
 static char curDir[4000];
 static int bh, mw, mh;
 static int inputw = 0;
@@ -61,6 +61,8 @@ static int promptw;
 static int yMid;
 // bottom bar Y coordinate
 static int yBot;
+//Max items to show in bottom and top bar
+static const int maxItems = 20;
 static size_t cursor = 0;
 static const char *font = NULL;
 static const char *prompt = NULL;
@@ -373,10 +375,12 @@ keypress(XKeyEvent *ev) {
 		scanChiDir();
 		break;
 	case XK_Up:
-		if(sel && sel->left && (sel = sel->left)->right == curr) {
-			curr = prev;
-			calcoffsets();
-		}
+		puts(curDir);
+		strcpy(curDir,"../../");
+		scanCurDir();
+		scanParDir();
+		match();
+		scanChiDir();
 		break;
 	case XK_Next:
 		if(!next)
@@ -599,12 +603,20 @@ void
 scanParDir(void) {
   struct dirent *info; 
   ParDirFiles[0] = 0;
+  int i;
   if (!(dir=opendir("../")))
     puts("unable to open parent diretory");
-  while ((info=readdir(dir))) {
-    strcat(ParDirFiles,info->d_name);
-    strcat(ParDirFiles,"   "); 
-  }
+//   while ((info=readdir(dir))) {
+//     strcat(ParDirFiles,info->d_name);
+//     strcat(ParDirFiles,"   "); 
+//   }
+    
+   for (i = 0; (info=readdir(dir)) && i<maxItems; i++ ) {
+	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
+	  continue;
+	strcat(ParDirFiles,info->d_name);
+	strcat(ParDirFiles,"   "); 
+   }
 }
 
 void
@@ -633,24 +645,28 @@ void
 scanChiDir(void) {
   struct dirent *info; 
   ChiDirFiles[0] = 0; //clean stringh
+  int i;
   if (sel) {
     if ((dir=opendir(sel->text))) {
-      while ((info=readdir(dir))) {
+      for (i = 0; (info=readdir(dir)) && i<maxItems; i++ ) {
 	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
 	  continue;
 	strcat(ChiDirFiles,info->d_name);
 	strcat(ChiDirFiles,"   "); 
       }
+
     }
   }
   
   else if (items) {
     if ((dir=opendir(items->text))) {
-      while ((info=readdir(dir))) {
+      for (i = 0; (info=readdir(dir)) && i<maxItems; i++ ) {
 	if (!(strcmp(info->d_name,"..")) || !(strcmp(info->d_name,".")))
 	  continue;
 	strcat(ChiDirFiles,info->d_name);
 	strcat(ChiDirFiles,"   "); 
+
+
       }
     }
   }
