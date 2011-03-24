@@ -1,24 +1,31 @@
-dmenu - dynamic menu
+dexp - dynamic explorer 
 ====================
-dmenu is an efficient dynamic menu for X.
+dexp is just a (ugly) mod of dmenu (dynamic menu for X).
 
+dmenu is made by Anselm R Garbe, Connor Lane Smith and suckless.org community
+http://suckless.org/
+http://hg.suckless.org/dmenu/
+
+dexp is an explorer for x11. It should be:
+1) a file manager
+2) a menu for select resource like bookmarks, scripts etc.
 
 Requirements
 ------------
-In order to build dmenu you need the Xlib header files.
+In order to build dexp you need the Xlib header files.
 
 
 Installation
 ------------
-Edit config.mk to match your local setup (dmenu is installed into
+Edit config.mk to match your local setup (dexp is installed into
 the /usr/local namespace by default).
 
-Afterwards enter the following command to build and install dmenu
+Afterwards enter the following command to build and install dexp
 (if necessary as root):
 
     make clean install
 
 
-Running dmenu
+Running dexp
 -------------
-See the man page for details.
+dexp works as dmenu (see man). If you use the -fm option it will start if file manager mode

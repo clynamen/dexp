@@ -88,11 +88,11 @@ int
 main(int argc, char *argv[]) {
 	int i;
 
-	progname = "dmenu";
+	progname = "dexp";
 	for(i = 1; i < argc; i++)
 		/* single flags */
 		if(!strcmp(argv[i], "-v")) {
-			fputs("dmenu-"VERSION", © 2006-2011 dmenu engineers, see LICENSE for details\n", stdout);
+			fputs("dexp-"VERSION", © 2006-2011 dexp engineers, see LICENSE for details\n", stdout);
 			exit(EXIT_SUCCESS);
 		}
 		else if(!strcmp(argv[i], "-b"))
@@ -674,8 +674,8 @@ scanChiDir(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-i] [-l lines] [-m monitor] [-p prompt] [-fn font]\n"
-	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
+	fputs("usage: dexp [-b] [-i] [-l lines] [-m monitor] [-p prompt] [-fn font]\n"
+	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v] [-fm]\n", stderr);
 	exit(EXIT_FAILURE);
 }
 
